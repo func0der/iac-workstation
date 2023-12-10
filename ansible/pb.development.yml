@@ -35,3 +35,53 @@
         - Projects
         - Projects/work
 
+    - name: Place nerdfont
+      ansible.builtin.debug:
+        msg: This would place a nerdfont
+        # FiraMono Nerd Font (Pop_OS!) -> https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/FiraMono.zip
+        # Place in ~/.fonts
+
+    - name: Install starship
+      ansible.builtin.debug:
+        msg: This would install 'starship'
+        # curl -sS https://starship.rs/install.sh | sh
+
+    - name: Install IntelliJ IDEA Ultimate IDE
+      ansible.builtin.debug:
+        msg: This would install 'IntelliJ IDEA Ultimate IDE'
+        # Possible collection: https://galaxy.ansible.com/ui/repo/published/diademiemi/jetbrains/
+        # Place .desktop (~/.local/share/applications)
+
+    # todo Maybe this is a base system thing?
+    - name: Install Sublime Text
+      ansible.builtin.debug:
+        msg: This would install 'sublime text'
+        # sudo rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg
+        # sudo dnf config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
+
+    - name: Configure terminal
+      ansible.builtin.debug:
+        msg: This would configure the terminal
+        # - Set NerdFont
+
+    - name: Configure shell
+      ansible.builtin.debug:
+        msg: This would configure the shell
+        # - Install neofetch
+        # - Place configs (dotfiles)
+
+    - name: Install virtualbox
+      ansible.builtin.debug:
+        msg: This would install virtualbox
+
+    - name: Install vagrant
+      ansible.builtin.debug:
+        msg: This would install vagrant
+
+    - name: Install docker
+      ansible.builtin.debug:
+        msg: This would install docker
+
+    - name: Install Insomnia (Flatpak)
+      ansible.builtin.debug:
+        msg: This would install Insomnia (Flatpak)
