@@ -1,0 +1,9 @@
+---
+
+- name: Setup Development systems
+  hosts: all
+  tasks:
+    - name: Install git
+      become: true
+      ansible.builtin.package:
+        name: git
