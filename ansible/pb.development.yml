@@ -3,7 +3,35 @@
 - name: Setup Development systems
   hosts: all
   tasks:
-    - name: Install git
-      become: true
-      ansible.builtin.package:
-        name: git
+    - name: Install and configure git
+      block:
+        # @todo Creation and copying of those files is not optimal. We can not account for changes
+        # in the .gitconfig here. It would be better to either run `git config` OR have a custom `.gitconfig.custom`
+        # and a file line check for .gitconfig.
+        - name: Place config files in home directory
+          ansible.builtin.copy:
+            src: files/home/.gitconfig
+            dest: ~/.gitconfig
+            force: false # This file is very likely changed by the package installation
+
+        - name: Place config files in home directory
+          ansible.builtin.copy:
+            src: "files/home/{{ item }}"
+            dest: "~/{{ item }}"
+          loop:
+            - .gitconfig.github
+            - .gitignore
+
+        - name: Install git
+          become: true
+          ansible.builtin.package:
+            name: git
+
+    - name: Create needed directories in ~
+      ansible.builtin.file:
+        name: "~/{{ item }}"
+        state: directory
+      loop:
+        - Projects
+        - Projects/work
+
