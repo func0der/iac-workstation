@@ -69,9 +69,8 @@
       block:
         - name: Check for Starship command
           ansible.builtin.command:
-            cmd: command -v starship >/dev/null 2>&1
+            cmd: which starship
           register: starship_installed
-          no_log: true
           ignore_errors: yes
 
         - name: Temporary location for installer file
