@@ -46,11 +46,22 @@
         - Projects
         - Projects/work
 
-    - name: Place nerdfont
-      ansible.builtin.debug:
-        msg: This would place a nerdfont
-        # FiraMono Nerd Font (Pop_OS!) -> https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/FiraMono.zip
-        # Place in ~/.fonts
+    - name: Install nerdfonts
+      block:
+        - name: Make .fonts directory
+          ansible.builtin.file:
+            dest: ~/.local/share/fonts/NerdFonts
+            state: directory
+
+        - name: Download nerdfont
+          ansible.builtin.unarchive:
+            remote_src: true
+            src: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/FiraMono.zip
+            include:
+              - FiraMonoNerdFontMono-Bold.otf
+              - FiraMonoNerdFontMono-Medium.otf
+              - FiraMonoNerdFontMono-Regular.otf
+            dest: ~/.local/share/fonts/NerdFonts
 
     - name: Install starship
       ansible.builtin.debug:
