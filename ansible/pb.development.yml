@@ -196,5 +196,6 @@
         - docker.io
 
     - name: Install Insomnia (Flatpak)
-      ansible.builtin.debug:
-        msg: This would install Insomnia (Flatpak)
+      community.general.flatpak:
+        method: user
+        name: rest.insomnia.Insomnia
