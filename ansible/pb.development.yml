@@ -119,12 +119,16 @@
             cmd: gsettings get org.gnome.Terminal.ProfilesList default
           register: gnome_terminal_default_profile
 
-        - name: Configure terminal
+        - name: Configure terminal's default profile
           block:
             # Maybe add a loop here with a check, so we do not run this every time.
-            - name: Set nerdfont in default terminal profile
+            - name: Set nerdfont
               ansible.builtin.command:
-                cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}}/ font 'Fira Mono 12'"
+                cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}}/ font 'FiraMono Nerd Font Mono 12'"
+
+            - name: Set shell to be login shell
+              ansible.builtin.command:
+                cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}}/ login-shell true"
           vars:
             gnome_terminal_default_profile_gsettings_path: "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:{{gnome_terminal_default_profile.stdout }}"
 
