@@ -3,6 +3,17 @@
 - name: Setup Development systems
   hosts: all
   tasks:
+    - name: Update apt and all packages
+      become: true
+      block:
+        - name: Update cache
+          ansible.builtin.apt:
+            update_cache: true
+        - name: Upgrade packages
+          ansible.builtin.apt:
+            upgrade: full
+      when: ansible_pkg_mgr == 'apt'
+
     - name: Install and configure git
       block:
         # @todo Creation and copying of those files is not optimal. We can not account for changes
