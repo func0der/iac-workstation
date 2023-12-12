@@ -152,6 +152,11 @@
 
     - name: Configure shell
       block:
+        - name: Install neofetch
+          become: true
+          ansible.builtin.package:
+            name: neofetch
+
         - name: Place bash config files
           ansible.builtin.copy:
             src: "files/home/{{ item }}"
