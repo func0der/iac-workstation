@@ -82,10 +82,20 @@
         # sudo dnf config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
 
     - name: Configure terminal
-      ansible.builtin.debug:
-        msg: This would configure the terminal
-        # - Set NerdFont (https://github.com/pop-os/desktop/blob/733a5e202fa154b18f427daad1000c46eaa2c597/debian/pop-desktop.gsettings-override#L58)
-        #       or: https://unix.stackexchange.com/questions/106070/changing-monospace-fonts-system-wide/351553#351553
+      block:
+        - name: Find default profiles name
+          ansible.builtin.command:
+            cmd: gsettings get org.gnome.Terminal.ProfilesList default
+          register: gnome_terminal_default_profile
+
+        - name: Configure terminal
+          block:
+            # Maybe add a loop here with a check, so we do not run this every time.
+            - name: Set nerdfont in default terminal profile
+              ansible.builtin.command:
+                cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}}/ font 'Fira Mono 12'"
+          vars:
+            gnome_terminal_default_profile_gsettings_path: "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:{{gnome_terminal_default_profile.stdout }}"
 
     - name: Configure shell
       ansible.builtin.debug:
