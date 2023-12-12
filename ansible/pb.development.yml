@@ -188,8 +188,12 @@
             name: vagrant
 
     - name: Install docker
-      ansible.builtin.debug:
-        msg: This would install docker
+      become: true
+      ansible.builtin.package:
+        name: "{{ item }}"
+      loop:
+        - docker-compose-v2
+        - docker.io
 
     - name: Install Insomnia (Flatpak)
       ansible.builtin.debug:
