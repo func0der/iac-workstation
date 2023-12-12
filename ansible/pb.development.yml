@@ -72,6 +72,7 @@
             cmd: which starship
           register: starship_installed
           ignore_errors: yes
+          no_log: true
 
         - name: Temporary location for installer file
           ansible.builtin.tempfile:
