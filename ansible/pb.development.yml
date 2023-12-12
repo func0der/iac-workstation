@@ -133,10 +133,18 @@
             gnome_terminal_default_profile_gsettings_path: "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:{{gnome_terminal_default_profile.stdout }}"
 
     - name: Configure shell
-      ansible.builtin.debug:
-        msg: This would configure the shell
-        # - Install neofetch
-        # - Place configs (dotfiles)
+      block:
+        - name: Place bash config files
+          ansible.builtin.copy:
+            src: "files/home/{{ item }}"
+            dest: "~/{{ item }}"
+          loop:
+            - .bash_paths
+            - .bash_profile
+
+        - ansible.builtin.debug:
+            msg: This would configure the shell
+            # - Install neofetch
 
     - name: Install virtualbox
       ansible.builtin.debug:
