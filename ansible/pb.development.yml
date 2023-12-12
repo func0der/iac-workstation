@@ -43,6 +43,8 @@
         name: "~/{{ item }}"
         state: directory
       loop:
+        - Applications
+        - bin
         - Projects
         - Projects/work
 
@@ -64,9 +66,39 @@
             dest: ~/.local/share/fonts/NerdFonts
 
     - name: Install starship
-      ansible.builtin.debug:
-        msg: This would install 'starship'
-        # curl -sS https://starship.rs/install.sh | sh
+      block:
+        - name: Check for Starship command
+          ansible.builtin.command:
+            cmd: command -v starship >/dev/null 2>&1
+          register: starship_installed
+          no_log: true
+          ignore_errors: yes
+
+        - name: Temporary location for installer file
+          ansible.builtin.tempfile:
+            suffix: starship_installer
+          register: starship_temp_installer
+          when: starship_installed.rc != 0
+
+        - name: Download installer
+          ansible.builtin.get_url:
+            url: https://starship.rs/install.sh
+            dest: "{{ starship_temp_installer.path }}"
+            force: true # Because we have already created the temp file before
+          when: starship_temp_installer.changed
+
+        - name: Run installer
+          ansible.builtin.script:
+            cmd: "{{ starship_temp_installer.path }} --yes --bin-dir ~/bin"
+            executable: /usr/bin/sh
+            creates: ~/bin/starship
+          when: starship_temp_installer.changed
+
+        - name: Delete installer
+          ansible.builtin.file:
+            path: "{{ starship_temp_installer.path }}"
+            state: absent
+          when: starship_temp_installer.changed
 
     - name: Install IntelliJ IDEA Ultimate IDE
       ansible.builtin.debug:
