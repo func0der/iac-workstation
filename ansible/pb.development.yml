@@ -122,10 +122,6 @@
             repo: deb [signed-by=/etc/apt/keyrings/sublime-text.asc] https://download.sublimetext.com/ apt/stable/
             filename: sublime-text
 
-        - name: Update apt cache
-          ansible.builtin.apt:
-            update_cache: true
-
         - name: Installing required packages
           ansible.builtin.package:
             name: sublime-text
@@ -169,13 +165,31 @@
             msg: This would configure the shell
             # - Install neofetch
 
-    - name: Install virtualbox
-      ansible.builtin.debug:
-        msg: This would install virtualbox
+    - name: Install virtualbox environment
+      become: true
+      ansible.builtin.package:
+        name: "{{ item }}"
+      loop:
+        - virtualbox
 
     - name: Install vagrant
-      ansible.builtin.debug:
-        msg: This would install vagrant
+      become: true
+      block:
+        - name: add gpg repo key
+          ansible.builtin.get_url:
+            url: https://apt.releases.hashicorp.com/gpg
+            dest: /etc/apt/keyrings/hashicorp.asc
+            mode: '0644'
+            force: true
+
+        - name: add apt repo
+          ansible.builtin.apt_repository:
+            repo: "deb [signed-by=/etc/apt/keyrings/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+            filename: hashicorp
+
+        - name: Installing required packages
+          ansible.builtin.package:
+            name: vagrant
 
     - name: Install docker
       ansible.builtin.debug:
