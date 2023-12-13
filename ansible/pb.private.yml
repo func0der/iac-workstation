@@ -5,3 +5,37 @@
 # - Install Hydrapaper (Flatpak)
 # - Install Thunderbird (Flatpak)
 # - Install com.naps2.Naps2 (Flatpak)
+- name: Setup Base system
+  hosts: all
+  tasks:
+    - name: Install protonvpn
+      block:
+        - name: Temporary location for installer file
+          ansible.builtin.tempfile:
+            suffix: protonvpn_installer
+          register: protonvpn_temp_installer
+
+        - name: Download repo installer
+          ansible.builtin.get_url:
+            url: https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_1.0.3-2_all.deb
+            checksum: sha256:c68a0b8dad58ab75080eed7cb989e5634fc88fca051703139c025352a6ee19ad
+            dest: "{{ protonvpn_temp_installer.path }}"
+            force: true # Because we have already created the temp file before
+
+        - name: Run repo installer
+          become: true
+          ansible.builtin.apt:
+            deb: "{{ protonvpn_temp_installer.path }}"
+
+        - name: Install protonvpn
+          become: true
+          ansible.builtin.apt:
+            name: protonvpn
+            update_cache: true
+
+        - name: Delete repo installer
+          ansible.builtin.file:
+            path: "{{ protonvpn_temp_installer.path }}"
+            state: absent
+          when: protonvpn_temp_installer.changed
+      when: "'protonvpn' not in ansible_facts.packages"
