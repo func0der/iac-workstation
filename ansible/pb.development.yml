@@ -100,12 +100,6 @@
             state: absent
           when: starship_temp_installer.changed
 
-    - name: Install IntelliJ IDEA Ultimate IDE
-      ansible.builtin.debug:
-        msg: This would install 'IntelliJ IDEA Ultimate IDE'
-        # Possible collection: https://galaxy.ansible.com/ui/repo/published/diademiemi/jetbrains/
-        # Place .desktop (~/.local/share/applications)
-
     # todo Maybe this is a base system thing?
     - name: Install Sublime Text
       become: true
@@ -199,3 +193,18 @@
       community.general.flatpak:
         method: user
         name: rest.insomnia.Insomnia
+
+    - name: Install IntelliJ IDEA Ultimate
+      ansible.builtin.include_role:
+        name: diademiemi.jetbrains.idea
+      vars:
+        jetbrains_idea_version: 2023.3.1
+        jetbrains_idea_edition: IU
+        jetbrains_idea_plugins:
+          - 6610
+          - 9674
+          - 7512
+          - 7320
+          - 15184
+          - 7379
+          - 7060
