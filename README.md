@@ -1,5 +1,16 @@
 # iac-workstation
 
+## **⚠️⚠️⚠️ This repository is a WIP and is not intended for public use (yet) ⚠️⚠️⚠️**
+
+If you really want to use this repo for your machines, please ready through the files
+carefully.
+
+There is personalization in there, that does not apply to you as well as
+quick and dirty solutions (for a lack of testing), that may cause harm to your
+systems.
+
+## What to expect
+
 This repository contains workstation configurations.
 
 It should ultimately replace my dotfiles and make it easier to switch between distros without
