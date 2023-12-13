@@ -16,7 +16,7 @@
 
     - name: Install Wine
       block:
-        - name: Activate i386 architechture
+        - name: Activate i386 architecture
           become: true
           ansible.builtin.command:
             cmd: dpkg --add-architecture i386
