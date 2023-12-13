@@ -6,6 +6,13 @@
 - name: Setup Base system
   hosts: all
   tasks:
+    - name: Create needed directories in ~
+      ansible.builtin.file:
+        name: "~/{{ item }}"
+        state: directory
+      loop:
+        - Applications
+
     - name: Install needed packages
       ansible.builtin.package:
         name: "{{ item ]]"

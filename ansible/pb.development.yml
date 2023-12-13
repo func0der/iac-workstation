@@ -43,7 +43,6 @@
         name: "~/{{ item }}"
         state: directory
       loop:
-        - Applications
         - bin
         - Projects
         - Projects/work
