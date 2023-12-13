@@ -1,13 +1,38 @@
 ---
-
-# @todo
-# - Install Nextcloud
-# - Install Hydrapaper (Flatpak)
-# - Install Thunderbird (Flatpak)
-# - Install com.naps2.Naps2 (Flatpak)
-- name: Setup Base system
+- name: Setup Private system
   hosts: all
   tasks:
+    - name: Install Nextcloud
+      block:
+        - name: Download AppImage
+          ansible.builtin.get_url:
+            url: "https://github.com/nextcloud-releases/desktop/releases/download/v{{nextcloud_client_version}}/Nextcloud-{{nextcloud_client_version}}-x86_64.AppImage"
+            dest: ~/Applications/Nextcloud.AppImage
+            mode: 0700
+          vars:
+            nextcloud_client_version: 3.11.0
+
+        - name: Create autostart entry
+          block:
+            - name: Make sure autostart directory exists
+              ansible.builtin.file:
+                name: ~/.config/autostart
+                state: directory
+
+            - name: Place nextcloud autostart item
+              ansible.builtin.copy:
+                src: files/home/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop
+                dest: ~/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop
+
+    - name: Install flatpak software
+      community.general.flatpak:
+        method: user
+        name: "{{ item }}"
+      loop:
+        - org.gabmus.hydrapaper
+        - org.mozilla.Thunderbird
+        - com.naps2.Naps2
+
     - name: Install protonvpn
       block:
         - name: Temporary location for installer file
