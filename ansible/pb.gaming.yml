@@ -1,6 +1,49 @@
 ---
 
-# @todo
-# - Install Lutris
-# - Install Steam
-# - Install TeamSpeak (Flatpak)
+- name: Setup Gaming system
+  hosts: all
+  tasks:
+    - name: Install flatpak software
+      community.general.flatpak:
+        method: user
+        name: "{{ item }}"
+      loop:
+        - com.teamspeak.TeamSpeak
+
+    - name: Gather the package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Install Wine
+      block:
+        - name: Activate i386 architechture
+          become: true
+          ansible.builtin.command:
+            cmd: dpkg --add-architecture i386
+
+        - name: add gpg repo key
+          become: true
+          ansible.builtin.get_url:
+            url: https://dl.winehq.org/wine-builds/winehq.key
+            dest: /etc/apt/keyrings/winehq-archive.key
+
+        - name: add apt repo
+          become: true
+          ansible.builtin.get_url:
+            url: "https://dl.winehq.org/wine-builds/ubuntu/dists/{{ ansible_distribution_release }}/winehq-{{ ansible_distribution_release }}.sources"
+            dest: /etc/apt/sources.list.d/
+
+        - name: Installing wine packages
+          become: true
+          ansible.builtin.package:
+            name: wine
+            update_cache: true
+      when: "'wine' not in ansible_facts.packages"
+
+    - name: Install Lutris and Steam
+      become: true
+      ansible.builtin.package:
+        name: "{{ item }}"
+      loop:
+        - lutris
+        - steam
