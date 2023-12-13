@@ -1,8 +1,5 @@
 ---
 
-# @todo
-# - Install Firefox (if not already there)
-
 - name: Setup Base system
   hosts: all
   tasks:
@@ -19,6 +16,7 @@
       loop:
         - apt-transport-https
         - flatpak
+        - firefox
 
     - name: Enable default flatpak repository
       community.general.flatpak_remote:
