@@ -131,9 +131,9 @@
         - virtualbox
 
     - name: Install vagrant
-      become: true
       block:
         - name: add gpg repo key
+          become: true
           ansible.builtin.get_url:
             url: https://apt.releases.hashicorp.com/gpg
             dest: /etc/apt/keyrings/hashicorp.asc
@@ -141,12 +141,14 @@
           when: use_custom_repos is defined
 
         - name: add apt repo
+          become: true
           ansible.builtin.apt_repository:
             repo: "deb [signed-by=/etc/apt/keyrings/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
             filename: hashicorp
           when: use_custom_repos is defined
 
         - name: Installing required packages
+          become: true
           ansible.builtin.package:
             name: vagrant
 
