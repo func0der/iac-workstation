@@ -37,30 +37,60 @@
       ansible.builtin.package_facts:
         manager: auto
 
+    # @see https://protonvpn.com/support/official-linux-vpn-fedora/
     - name: Install protonvpn
       block:
-        - name: Temporary location for installer file
-          ansible.builtin.tempfile:
-            suffix: protonvpn_installer
-          register: protonvpn_temp_installer
+        - block:
+            - name: Temporary location for installer file
+              ansible.builtin.tempfile:
+                suffix: protonvpn_installer.deb
+              register: protonvpn_temp_installer
 
-        - name: Download repo installer
-          ansible.builtin.get_url:
-            url: https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_1.0.3-2_all.deb
-            checksum: sha256:c68a0b8dad58ab75080eed7cb989e5634fc88fca051703139c025352a6ee19ad
-            dest: "{{ protonvpn_temp_installer.path }}"
-            force: true # Because we have already created the temp file before
+            - name: Download repo installer
+              ansible.builtin.get_url:
+                url: https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_1.0.3-2_all.deb
+                checksum: sha256:c68a0b8dad58ab75080eed7cb989e5634fc88fca051703139c025352a6ee19ad
+                dest: "{{ protonvpn_temp_installer.path }}"
+                force: true # Because we have already created the temp file before
 
-        - name: Run repo installer
-          become: true
-          ansible.builtin.apt:
-            deb: "{{ protonvpn_temp_installer.path }}"
+            - name: Run repo installer
+              become: true
+              ansible.builtin.apt:
+                deb: "{{ protonvpn_temp_installer.path }}"
 
-        - name: Install protonvpn
-          become: true
-          ansible.builtin.apt:
-            name: protonvpn
-            update_cache: true
+            - name: Install protonvpn
+              become: true
+              ansible.builtin.apt:
+                name: protonvpn
+                update_cache: true
+          when: ansible_distribution == 'Debian'
+
+        - block:
+            - name: Temporary location for installer file
+              ansible.builtin.tempfile:
+                suffix: protonvpn_installer.rpm
+              register: protonvpn_temp_installer
+
+            - name: Download repo installer
+              ansible.builtin.get_url:
+                url: https://repo.protonvpn.com/fedora-39-stable/protonvpn-stable-release/protonvpn-stable-release-1.0.1-2.noarch.rpm
+                checksum: sha256:c2c59088b3d7e9576107f084b909743bf00446f377189934ae386502c667fb65
+                dest: "{{ protonvpn_temp_installer.path }}"
+                force: true # Because we have already created the temp file before
+
+            - name: Run repo installer
+              become: true
+              ansible.builtin.dnf:
+                name: "{{ protonvpn_temp_installer.path }}"
+                disable_gpg_check: true
+
+            - name: Install protonvpn
+              become: true
+              ansible.builtin.dnf:
+                name: protonvpn
+                update_cache: true
+                disable_gpg_check: true
+          when: ansible_distribution == 'Fedora'
 
         - name: Delete repo installer
           ansible.builtin.file:
