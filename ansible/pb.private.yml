@@ -33,6 +33,10 @@
         - org.mozilla.Thunderbird
         # @todo - com.naps2.Naps2 (https://github.com/cyanfish/naps2)
 
+    - name: Gather the package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
     - name: Install protonvpn
       block:
         - name: Temporary location for installer file
