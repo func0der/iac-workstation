@@ -10,6 +10,18 @@
       loop:
         - Applications
 
+    - name: Update apt and all packages
+      block:
+        - name: Update cache
+          become: true
+          ansible.builtin.apt:
+            update_cache: true
+        - name: Upgrade packages
+          become: true
+          ansible.builtin.apt:
+            upgrade: full
+      when: ansible_pkg_mgr == 'apt'
+
     - name: Install needed packages
       ansible.builtin.package:
         name: "{{ item }}"
