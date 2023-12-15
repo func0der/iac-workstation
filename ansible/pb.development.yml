@@ -123,42 +123,110 @@
             - .bash_paths
             - .bash_profile
 
-    - name: Install virtualbox environment
-      become: true
-      ansible.builtin.package:
-        name: "{{ item }}"
-      loop:
-        - virtualbox
+    - name: Virtualbox
+      block:
+        - block:
+            - name: Install virtualbox
+              become: true
+              ansible.builtin.package:
+                name: "{{ item }}"
+              loop:
+                - virtualbox
+          when: ansible_distribution == 'Debian'
+
+        - block:
+            - name: add gpg repo key
+              become: true
+              ansible.builtin.rpm_key:
+                key: https://www.virtualbox.org/download/oracle_vbox_2016.asc
+
+            - name: add yum repo
+              become: true
+              ansible.builtin.yum_repository:
+                baseurl: http://download.virtualbox.org/virtualbox/rpm/fedora/$releasever/$basearch
+                name: virtualbox
+                description: Fedora $releasever - $basearch - VirtualBox
+                enabled: true
+                gpgcheck: true
+                repo_gpgcheck: true
+                gpgkey: https://www.virtualbox.org/download/oracle_vbox_2016.asc
+
+            - name: Install virtualbox
+              become: true
+              ansible.builtin.package:
+                name: "{{ item }}"
+              loop:
+                - VirtualBox-7.0
+          when: ansible_distribution == 'Fedora'
 
     - name: Install vagrant
       block:
-        - name: add gpg repo key
-          become: true
-          ansible.builtin.get_url:
-            url: https://apt.releases.hashicorp.com/gpg
-            dest: /etc/apt/keyrings/hashicorp.asc
-            mode: '0644'
-          when: use_custom_repos is defined
+        - block:
+          - name: add gpg repo key
+            become: true
+            ansible.builtin.get_url:
+              url: https://apt.releases.hashicorp.com/gpg
+              dest: /etc/apt/keyrings/hashicorp.asc
+              mode: '0644'
+            when: use_custom_repos is defined
 
-        - name: add apt repo
-          become: true
-          ansible.builtin.apt_repository:
-            repo: "deb [signed-by=/etc/apt/keyrings/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
-            filename: hashicorp
-          when: use_custom_repos is defined
+          - name: add apt repo
+            become: true
+            ansible.builtin.apt_repository:
+              repo: "deb [signed-by=/etc/apt/keyrings/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+              filename: hashicorp
+            when: use_custom_repos is defined
 
-        - name: Installing required packages
-          become: true
-          ansible.builtin.package:
-            name: vagrant
+          - name: Installing required packages
+            become: true
+            ansible.builtin.package:
+              name: vagrant
+          when: ansible_distribution == 'Debian'
+
+        - block:
+            - name: add gpg repo key
+              become: true
+              ansible.builtin.rpm_key:
+                key: https://rpm.releases.hashicorp.com/gpg
+
+            - name: add yum repo
+              become: true
+              ansible.builtin.yum_repository:
+                baseurl: https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
+                name: hashicorp
+                description: Hashicorp Stable - $basearch
+                enabled: true
+                gpgcheck: true
+                gpgkey: https://rpm.releases.hashicorp.com/gpg
+              when: use_custom_repos is defined
+
+            - name: Installing required packages
+              become: true
+              ansible.builtin.package:
+                name: vagrant
+          when: ansible_distribution == 'Fedora'
 
     - name: Install docker
-      become: true
-      ansible.builtin.package:
-        name: "{{ item }}"
-      loop:
-        - docker-compose-v2
-        - docker.io
+      block:
+        - block:
+            - name: Install docker
+              become: true
+              ansible.builtin.package:
+                name: "{{ item }}"
+              loop:
+                - docker-compose-v2
+                - docker.io
+          when: ansible_distribution == 'Debian'
+
+        # On Fedora we try with Podman for the time being.
+        - block:
+            - name: Install podman-compose
+              become: true
+              ansible.builtin.package:
+                name: "{{ item }}"
+              loop:
+                - podman-compose
+          when: ansible_distribution == 'Fedora'
 
     - name: Install Insomnia (Flatpak)
       community.general.flatpak:
