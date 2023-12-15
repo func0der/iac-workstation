@@ -14,30 +14,60 @@
       ansible.builtin.package_facts:
         manager: auto
 
+    # @see https://wiki.winehq.org/Fedora
     - name: Install Wine
       block:
-        - name: Activate i386 architecture
-          become: true
-          ansible.builtin.command:
-            cmd: dpkg --add-architecture i386
+        - block:
+            - name: Activate i386 architecture
+              become: true
+              ansible.builtin.command:
+                cmd: dpkg --add-architecture i386
 
-        - name: add gpg repo key
-          become: true
-          ansible.builtin.get_url:
-            url: https://dl.winehq.org/wine-builds/winehq.key
-            dest: /etc/apt/keyrings/winehq-archive.key
+            - name: add gpg repo key
+              become: true
+              ansible.builtin.get_url:
+                url: https://dl.winehq.org/wine-builds/winehq.key
+                dest: /etc/apt/keyrings/winehq-archive.key
 
-        - name: add apt repo
-          become: true
-          ansible.builtin.get_url:
-            url: "https://dl.winehq.org/wine-builds/ubuntu/dists/{{ ansible_distribution_release }}/winehq-{{ ansible_distribution_release }}.sources"
-            dest: /etc/apt/sources.list.d/
+            - name: add apt repo
+              become: true
+              ansible.builtin.get_url:
+                url: "https://dl.winehq.org/wine-builds/ubuntu/dists/{{ ansible_distribution_release }}/winehq-{{ ansible_distribution_release }}.sources"
+                dest: /etc/apt/sources.list.d/
 
-        - name: Installing wine packages
-          become: true
-          ansible.builtin.package:
-            name: wine
-            update_cache: true
+            - name: Update cache
+              become: true
+              ansible.builtin.apt:
+                update_cache: true
+
+            - name: Installing wine packages
+              become: true
+              ansible.builtin.package:
+                name: winehq-stable
+          when: ansible_distribution == 'Debian'
+
+        - block:
+            # Do not add repo for now, since Fedora 39 does not have a stable release yet.
+#            - name: add yum repo
+#              become: true
+#              ansible.builtin.yum_repository:
+#                baseurl: https://dl.winehq.org/wine-builds/fedora/39
+#                name: winehq
+#                description: WineHQ packages
+#                enabled: true
+#                gpgcheck: true
+#                gpgkey: https://dl.winehq.org/wine-builds/winehq.key
+
+#            - name: Installing wine packages
+#              become: true
+#              ansible.builtin.package:
+#                name: winehq-stable
+
+            - name: Installing wine packages
+              become: true
+              ansible.builtin.package:
+                name: wine
+          when: ansible_distribution == 'Fedora'
       when: "'wine' not in ansible_facts.packages"
 
     - name: Install Lutris and Steam
