@@ -233,17 +233,27 @@
         method: user
         name: rest.insomnia.Insomnia
 
-    - name: Install IntelliJ IDEA Ultimate
-      ansible.builtin.include_role:
-        name: diademiemi.jetbrains.idea
-      vars:
-        jetbrains_idea_version: 2023.3.1
-        jetbrains_idea_edition: IU
-        jetbrains_idea_plugins:
-          - 6610
-          - 9674
-          - 7512
-          - 7320
-          - 15184
-          - 7379
-          - 7060
+    - name: IntelliJ IDEA Ultimate
+      block:
+        - name: Install pip
+          ansible.builtin.command:
+            cmd: python3 -m ensurepip
+
+        - name: Install jmespath
+          ansible.builtin.pip:
+            name: jmespath
+
+        - name: Install IntelliJ IDEA Ultimate
+          ansible.builtin.include_role:
+            name: diademiemi.jetbrains.idea
+          vars:
+            jetbrains_idea_version: 2023.3.1
+            jetbrains_idea_edition: IU
+            jetbrains_idea_plugins:
+              - 6610
+              - 9674
+              - 7512
+              - 7320
+              - 15184
+              - 7379
+              - 7060
