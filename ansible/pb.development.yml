@@ -91,7 +91,7 @@
               - FiraMonoNerdFontMono-Regular.otf
             dest: ~/.local/share/fonts/NerdFonts
 
-    - name: Install starship
+    - name: Install and configure starship
       block:
         - name: Check for Starship command
           ansible.builtin.command:
@@ -125,6 +125,11 @@
             path: "{{ starship_temp_installer.path }}"
             state: absent
           when: starship_temp_installer.changed
+
+        - name: Place starship config file
+          ansible.builtin.copy:
+            src: "files/home/.config/starship.toml"
+            dest: "~/.config/starship.toml"
 
     - name: Configure terminal
       block:
