@@ -70,7 +70,7 @@
         name: "~/{{ item }}"
         state: directory
       loop:
-        - bin
+        - .local/bin
         - Projects
         - Projects/work
 
@@ -117,7 +117,7 @@
           ansible.builtin.script:
             cmd: "{{ starship_temp_installer.path }} --yes --bin-dir ~/bin"
             executable: /usr/bin/sh
-            creates: ~/bin/starship
+            creates: ~/.local/bin/starship
           when: starship_temp_installer.changed
 
         - name: Delete installer
