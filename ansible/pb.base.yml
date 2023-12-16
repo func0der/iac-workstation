@@ -66,6 +66,7 @@
         - org.keepassxc.KeePassXC
         - com.spotify.Client
         - com.github.jeromerobert.pdfarranger
+        - org.gnome.World.PikaBackup
 
     - name: Gather the package facts
       ansible.builtin.package_facts:
