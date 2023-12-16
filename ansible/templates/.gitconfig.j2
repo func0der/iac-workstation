@@ -1,0 +1,15 @@
+[user]
+	name = func0der
+
+[core]
+	editor = vim
+	excludesfile = ~/.gitignore
+
+[pull]
+	rebase = false
+
+[includeIf "hasconfig:remote.*.url:git@github.com:**/**"]
+	path = ./.gitconfig.github
+
+[includeIf "hasconfig:remote.*.url:https://github.com/**"]
+	path = ./.gitconfig.github
