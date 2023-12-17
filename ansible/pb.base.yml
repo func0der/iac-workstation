@@ -111,3 +111,10 @@
           become: true
           ansible.builtin.package:
             name: sublime-text
+
+    - name: Utility Gnome settings
+      ansible.builtin.command:
+        cmd: "gsettings set {{ item.key }} {{ item.value }}"
+      loop:
+        - key: org.gnome.desktop.calendar show-weekdate
+          value: 'true'
