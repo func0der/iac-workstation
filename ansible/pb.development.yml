@@ -115,7 +115,7 @@
 
         - name: Run installer
           ansible.builtin.script:
-            cmd: "{{ starship_temp_installer.path }} --yes --bin-dir ~/bin"
+            cmd: "{{ starship_temp_installer.path }} --yes --bin-dir ~/.local/bin"
             executable: /usr/bin/sh
             creates: ~/.local/bin/starship
           when: starship_temp_installer.changed
