@@ -118,3 +118,9 @@
       loop:
         - key: org.gnome.desktop.calendar show-weekdate
           value: 'true'
+        - key: org.gnome.desktop.privacy old-files-age
+          value: '"uint32 30"'
+        - key: org.gnome.desktop.privacy recent-files-max-age
+          value: 30
+        - key: org.gnome.desktop.peripherals.mouse accel-profile
+          value: flat
