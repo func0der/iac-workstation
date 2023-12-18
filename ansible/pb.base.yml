@@ -124,3 +124,8 @@
           value: 30
         - key: org.gnome.desktop.peripherals.mouse accel-profile
           value: flat
+
+    - name: Install gnome extensions
+      ansbile.builtin.debug: "{{ item }}"
+      loop:
+        - https://extensions.gnome.org/extension/615/appindicator-support/
