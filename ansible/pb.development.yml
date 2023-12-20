@@ -65,6 +65,26 @@
           ansible.builtin.package:
             name: git
 
+    - name: Vim
+      block:
+        - block:
+            - name: Install vim
+              become: true
+              ansible.builtin.package:
+                name: "{{ item }}"
+              loop:
+                - vim
+          when: ansible_distribution == 'Debian'
+
+        - block:
+            - name: Install vim
+              become: true
+              ansible.builtin.package:
+                name: "{{ item }}"
+              loop:
+                - vim-enhanced
+          when: ansible_distribution == 'Fedora'
+
     - name: Create needed directories in ~
       ansible.builtin.file:
         name: "~/{{ item }}"
