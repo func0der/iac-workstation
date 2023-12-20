@@ -129,3 +129,4 @@
       ansbile.builtin.debug: "{{ item }}"
       loop:
         - https://extensions.gnome.org/extension/615/appindicator-support/
+        - https://extensions.gnome.org/extension/2236/night-theme-switcher/
