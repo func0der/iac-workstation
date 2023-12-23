@@ -1,6 +1,6 @@
 ---
 
-all:
+fedora:
   hosts:
     localhost:
       ansible_connection: local
