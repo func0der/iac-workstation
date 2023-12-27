@@ -195,6 +195,7 @@
                 name: "{{ item }}"
               loop:
                 - virtualbox
+                - linux-headers-amd64
           when: ansible_distribution == 'Debian'
 
         - block:
@@ -220,6 +221,7 @@
                 name: "{{ item }}"
               loop:
                 - VirtualBox-7.0
+                - kernel-devel
           when: ansible_distribution == 'Fedora'
 
     - name: Install vagrant
