@@ -1,7 +1,5 @@
 ---
 
-# @todo since "localhost" is in both groups, the variables get merged and overwritten. Maybe
-# groups are not the way to differentiate between hosts systems.
 _not_common_packages:
   - name: firefox
   - name: flatpak
