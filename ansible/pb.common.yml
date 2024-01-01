@@ -3,14 +3,6 @@
 - name: Setup Common system
   hosts: all
 
-  pre_tasks:
-    - name: Include vars based on distribution
-      ansible.builtin.include_vars:
-        file: "distribution_vars/{{ item }}.yml"
-      loop:
-        - all
-        - "{{ ansible_os_family }}"
-
   tasks:
     - name: Create needed directories in ~
       ansible.builtin.file:

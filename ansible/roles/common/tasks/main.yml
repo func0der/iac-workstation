@@ -1,5 +1,11 @@
 ---
 
+- name: Include vars based on distribution
+  ansible.builtin.include_vars:
+    file: "vars/os_family/{{ item }}.yml"
+  loop:
+    - "{{ ansible_os_family | lower }}"
+
 - name: Update apt and all packages
   block:
     - block:
