@@ -1,0 +1,21 @@
+---
+
+- name: "{{ package.name }} | Download repository key"
+  become: true
+  ansible.builtin.rpm_key:
+    key: "{{ package.repo_key }}"
+
+- name: "{{ package.name }} | Add yum repo"
+  become: true
+  ansible.builtin.yum_repository:
+    baseurl: "{{ package.repo }}"
+    name: "{{ package.name }}"
+    description: "{{ package.name }}"
+    enabled: true
+    gpgcheck: true
+    gpgkey: "{{ package.repo_key }}"
+
+- name: "{{ package.name }} | Install"
+  become: true
+  ansible.builtin.package:
+    name: "{{ package.name }}"

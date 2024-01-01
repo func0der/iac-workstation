@@ -1,0 +1,45 @@
+---
+- name: "{{ package.name }} | Normalize local key path"
+  when: "package.repo_key is defined"
+  set_fact:
+    repository_key_path: "/etc/apt/keyrings/{{ package.repo_key | basename | splitext | first }}.gpg"
+
+- name: "{{ package.name }} | Download repository key"
+  when: "package.repo_key is defined and repository_key_path is not file"
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ package.repo_key }}"
+    dest: "{{ repository_key_path }}"
+    mode: '0644'
+  register: repository_key_download
+
+- name: "{{ package.name }} | Check repository key for ASCII armour"
+  when: repository_key_download.changed
+  ansible.builtin.command:
+    cmd: "file {{ repository_key_download.dest }}"
+  register: repository_key_armour_check
+
+- name: "{{ package.name }} | De-armour key"
+  when: repository_key_download.changed and repository_key_armour_check.stdout.find("(old)") != -1
+  become: true
+  ansible.builtin.shell:
+    cmd: "cat {{ repository_key_download.dest }} | gpg --dearmor | tee {{ repository_key_download.dest }}"
+
+- name: "{{ package.name }} | Add repository"
+  when: package.repo is defined and package.repo_key is defined
+  become: true
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ repository_key_path }}] {{ package.repo }}"
+    filename: "{{ package.name }}"
+
+- name: "{{ package.name }} | Add repository"
+  when: package.repo is defined and package.repo_key is undefined
+  become: true
+  ansible.builtin.apt_repository:
+    repo: "deb {{ package.repo }}"
+    filename: "{{ package.name }}"
+
+- name: "{{ package.name }} | Install"
+  become: true
+  ansible.builtin.package:
+    name: "{{ package.name }}"

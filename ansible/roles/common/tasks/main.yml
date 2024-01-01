@@ -1,0 +1,41 @@
+---
+
+- name: Update apt and all packages
+  block:
+    - block:
+        - name: Update cache
+          become: true
+          ansible.builtin.apt:
+            update_cache: true
+        - name: Upgrade packages
+          become: true
+          ansible.builtin.apt:
+            upgrade: full
+      when: ansible_pkg_mgr == 'apt'
+
+    - block:
+        - name: Upgrade packages
+          become: true
+          ansible.builtin.dnf:
+            name: "*"
+            state: latest
+      when: ansible_pkg_mgr == 'dnf'
+
+- name: Install packages
+  loop: "{{ common_packages }}"
+  ansible.builtin.include_tasks: "install_package/{{ ansible_pkg_mgr }}.yml"
+  vars:
+    package: "{{ item }}"
+
+- name: "Enable flatpak repository"
+  community.general.flatpak_remote:
+    name: "{{ item.key }}"
+    flatpakrepo_url: "{{ item.value.repo_url }}"
+    method: "{{ item.value.method }}"
+  loop: "{{ common_flatpak_repos | dict2items }}"
+
+- name: "Install flatpak"
+  community.general.flatpak:
+    method: user
+    name: "{{ item }}"
+  loop: "{{ common_flatpaks }}"

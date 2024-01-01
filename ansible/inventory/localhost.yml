@@ -1,6 +1,6 @@
 ---
 
-all:
+debian:
   hosts:
     localhost:
       ansible_connection: local
