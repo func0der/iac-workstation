@@ -1,13 +1,13 @@
 ---
 
-_not_common_packages:
+common_packages:
   - name: firefox
   - name: flatpak
   - name: sublime-text
     repo: https://download.sublimetext.com/ apt/stable/
     repo_key: https://download.sublimetext.com/sublimehq-rpm-pub.gpg
 
-_not_common_flatpaks:
+common_flatpaks:
   - org.onlyoffice.desktopeditors
   - org.keepassxc.KeePassXC
   - com.spotify.Client
