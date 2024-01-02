@@ -6,7 +6,7 @@ cd $SCRIPT_DIR
 
 FILES=$(find . -type f -name 'apply_*' -not -name apply_all.sh -not -name apply_base.sh)
 
-./apply_base.sh
+./apply_common.sh
 
 for FILE in $FILES; do
   $FILE
