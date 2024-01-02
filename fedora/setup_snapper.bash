@@ -121,18 +121,4 @@ if [[ ! $(command -v grub-btrfsd) ]]; then
     sudo rm -r "${GRUB_BTRFS_GIT_DIR}"
 fi
 
-# Create default snapshot entry
-sudo ls -la /.snapshots/1 > /dev/null 2>&1 || sudo mkdir -v /.snapshots/1
-sudo ls -la /.snapshots/1/info.xml > /dev/null 2>&1 || sudo bash -c "cat > /.snapshots/1/info.xml" <<EOF
-<?xml version="1.0"?>
-<snapshot>
-  <type>single</type>
-  <num>1</num>
-  <date>$(date -u +"%F %T")</date>
-  <description>first root subvolume</description>
-</snapshot>
-EOF
-sudo cat /.snapshots/1/info.xml
-
-sudo btrfs subvolume snapshot / /.snapshots/1/snapshot
-sudo btrfs subvolume set-default $(sudo btrfs inspect-internal rootid /.snapshots/1/snapshot) /
+sudo btrfs subvolume set-default $(sudo btrfs inspect-internal rootid /) /
