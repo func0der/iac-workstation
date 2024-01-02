@@ -165,6 +165,10 @@
               ansible.builtin.command:
                 cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}}/ font 'FiraMono Nerd Font Mono 12'"
 
+            - name: Do not use system font
+              ansible.builtin.command:
+                cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}}/ use-system-font false"
+
             - name: Set shell to be login shell
               ansible.builtin.command:
                 cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}}/ login-shell true"
