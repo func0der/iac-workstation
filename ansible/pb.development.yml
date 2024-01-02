@@ -308,7 +308,9 @@
       block:
         - name: Install pip
           ansible.builtin.command:
+            # @todo Should use https://bootstrap.pypa.io/get-pip.py
             cmd: python3 -m ensurepip
+          when: ansible_distribution == 'Fedora'
 
         - name: Install jmespath
           ansible.builtin.pip:
