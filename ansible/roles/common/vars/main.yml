@@ -1,6 +1,6 @@
 ---
 
 common_flatpak_repos:
-  flatpak:
+  flathub:
     repo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
     method: user
