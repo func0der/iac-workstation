@@ -20,16 +20,17 @@ the overhead of installing EVERYTHING by hand afterward.
 
 ## Assumptions
 
-  * Pop_OS! (should work with Gnome- and Debian-based)
-  * Gnome desktop (for now)
-  * Debian based host (for now)
+  * Distros
+    * Debian-based
+    * Fedora-based (RedHat not tested)
+  * Gnome desktop environment
   * Ansible 2.15.8+
 
 ## How to use
 
 ### Install `ansible`
 
-There is an auto installer for `ansible` in [./bin](./bin), which works
+There are an auto installers for `ansible` in [./bin](./bin), which works
 with the above assumptions.
 
 If you do not want to use that script, install `ansible` however you want
@@ -50,13 +51,13 @@ the playbook could fail unexpectedly (see [Assumptions](#assumptions)).
 ansible-galaxy install -r ansible/requirements.yml
 ```
 
-### Run `base` playbook
+### Run `common` playbook
 
 There is currently no proper structure and there might be some implicit
 dependencies between the base and any other playbook.
 
 ```bash
-./bin/apply_base.sh
+./bin/apply_common.sh
 ```
 
 ### Run whatever playbook suites your needs
