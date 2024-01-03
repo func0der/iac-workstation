@@ -1,0 +1,358 @@
+---
+
+- name: Setup Development systems
+  hosts: all
+  tasks:
+    - name: Configure ssh config
+      block:
+        - name: Ensure required folder exists
+          file:
+            path: "{{ item }}"
+            state: directory
+            mode: "0700"
+          with_items:
+            - ~/.ssh
+
+        - name: Ensure SSH config file exists
+          ansible.builtin.copy:
+            content: ""
+            dest: "~/.ssh/config"
+            force: false
+            group: "{{ ansible_user_gid }}"
+            owner: "{{ ansible_user_uid }}"
+            mode: 0600
+
+        - name: Render SSH config Template
+          set_fact:
+            ssh_config_template: "{{ lookup('template', 'ssh_config.j2') }}"
+
+        - name: Add template in SSH config
+          ansible.builtin.blockinfile:
+            dest: "~/.ssh/config"
+            block: |
+              {{ ssh_config_template }}
+            marker: "#{mark} ANSIBLE MANAGED BLOCK SSH"
+
+    - name: Install and configure git
+      block:
+        - name: Place config files in home directory
+          ansible.builtin.copy:
+            content: ""
+            dest: ~/.gitconfig
+            force: false # This file is very likely changed by the package installation
+
+        - name: Render Git config Template
+          set_fact:
+            ssh_config_template: "{{ lookup('template', '.gitconfig.j2') }}"
+
+        - name: Add template in Git config
+          ansible.builtin.blockinfile:
+            dest: ~/.gitconfig
+            block: |
+              {{ ssh_config_template }}
+            marker: "#{mark} ANSIBLE MANAGED BLOCK SSH"
+
+        - name: Place config files in home directory
+          ansible.builtin.copy:
+            src: "files/home/{{ item }}"
+            dest: "~/{{ item }}"
+          loop:
+            - .gitconfig.github
+            - .gitignore
+
+        - name: Install git
+          become: true
+          ansible.builtin.package:
+            name: git
+
+    - name: Vim
+      block:
+        - block:
+            - name: Install vim
+              become: true
+              ansible.builtin.package:
+                name: "{{ item }}"
+              loop:
+                - vim
+          when: ansible_distribution == 'Debian'
+
+        - block:
+            - name: Install vim
+              become: true
+              ansible.builtin.package:
+                name: "{{ item }}"
+              loop:
+                - vim-enhanced
+          when: ansible_distribution == 'Fedora'
+
+    - name: Create needed directories in ~
+      ansible.builtin.file:
+        name: "~/{{ item }}"
+        state: directory
+      loop:
+        - .local/bin
+        - Projects
+        - Projects/work
+
+    - name: Install nerdfonts
+      block:
+        - name: Make .fonts directory
+          ansible.builtin.file:
+            dest: ~/.local/share/fonts/NerdFonts
+            state: directory
+
+        - name: Download nerdfont
+          ansible.builtin.unarchive:
+            remote_src: true
+            src: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/FiraMono.zip
+            include:
+              - FiraMonoNerdFontMono-Bold.otf
+              - FiraMonoNerdFontMono-Medium.otf
+              - FiraMonoNerdFontMono-Regular.otf
+            dest: ~/.local/share/fonts/NerdFonts
+
+    - name: Install and configure starship
+      block:
+        - name: Check for Starship command
+          ansible.builtin.command:
+            cmd: which starship
+          register: starship_installed
+          ignore_errors: yes
+          no_log: true
+
+        - name: Temporary location for installer file
+          ansible.builtin.tempfile:
+            suffix: starship_installer
+          register: starship_temp_installer
+          when: starship_installed.rc != 0
+
+        - name: Download installer
+          ansible.builtin.get_url:
+            url: https://starship.rs/install.sh
+            dest: "{{ starship_temp_installer.path }}"
+            force: true # Because we have already created the temp file before
+          when: starship_temp_installer.changed
+
+        - name: Run installer
+          ansible.builtin.script:
+            cmd: "{{ starship_temp_installer.path }} --yes --bin-dir ~/.local/bin"
+            executable: /usr/bin/sh
+            creates: ~/.local/bin/starship
+          when: starship_temp_installer.changed
+
+        - name: Delete installer
+          ansible.builtin.file:
+            path: "{{ starship_temp_installer.path }}"
+            state: absent
+          when: starship_temp_installer.changed
+
+        - name: Place starship config file
+          ansible.builtin.copy:
+            src: "files/home/.config/starship.toml"
+            dest: "~/.config/starship.toml"
+
+    - name: Configure terminal
+      block:
+        - name: Find default profiles name
+          ansible.builtin.command:
+            cmd: gsettings get org.gnome.Terminal.ProfilesList default
+          register: gnome_terminal_default_profile
+
+        - name: Configure terminal's default profile
+          block:
+            # Maybe add a loop here with a check, so we do not run this every time.
+            - name: Set nerdfont
+              ansible.builtin.command:
+                cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}}/ font 'FiraMono Nerd Font Mono 12'"
+
+            - name: Do not use system font
+              ansible.builtin.command:
+                cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}}/ use-system-font false"
+
+            - name: Set shell to be login shell
+              ansible.builtin.command:
+                cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}}/ login-shell true"
+          vars:
+            gnome_terminal_default_profile_gsettings_path: "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:{{gnome_terminal_default_profile.stdout }}"
+
+    - name: Configure shell
+      block:
+        - name: Install neofetch
+          become: true
+          ansible.builtin.package:
+            name: neofetch
+
+        - name: Place bash config files
+          ansible.builtin.copy:
+            src: "files/home/{{ item }}"
+            dest: "~/{{ item }}"
+          loop:
+            - .bash_paths
+            - .bash_profile
+
+    - name: Virtualbox
+      block:
+        - block:
+            - name: Install virtualbox
+              become: true
+              ansible.builtin.package:
+                name: "{{ item }}"
+              loop:
+                - virtualbox
+                - linux-headers-amd64
+          when: ansible_distribution == 'Debian'
+
+        - block:
+            - name: add gpg repo key
+              become: true
+              ansible.builtin.rpm_key:
+                key: https://www.virtualbox.org/download/oracle_vbox_2016.asc
+
+            - name: add yum repo
+              become: true
+              ansible.builtin.yum_repository:
+                baseurl: http://download.virtualbox.org/virtualbox/rpm/fedora/$releasever/$basearch
+                name: virtualbox
+                description: Fedora $releasever - $basearch - VirtualBox
+                enabled: true
+                gpgcheck: true
+                repo_gpgcheck: true
+                gpgkey: https://www.virtualbox.org/download/oracle_vbox_2016.asc
+
+            - name: Install virtualbox
+              become: true
+              ansible.builtin.package:
+                name: "{{ item }}"
+              loop:
+                - VirtualBox-7.0
+                - kernel-devel
+          when: ansible_distribution == 'Fedora'
+
+    - name: Install vagrant
+      block:
+        - block:
+          - name: add gpg repo key
+            become: true
+            ansible.builtin.get_url:
+              url: https://apt.releases.hashicorp.com/gpg
+              dest: /etc/apt/keyrings/hashicorp.asc
+              mode: '0644'
+            when: use_custom_repos is defined
+
+          - name: add apt repo
+            become: true
+            ansible.builtin.apt_repository:
+              repo: "deb [signed-by=/etc/apt/keyrings/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+              filename: hashicorp
+            when: use_custom_repos is defined
+
+          - name: Installing required packages
+            become: true
+            ansible.builtin.package:
+              name: vagrant
+          when: ansible_distribution == 'Debian'
+
+        - block:
+            - name: add gpg repo key
+              become: true
+              ansible.builtin.rpm_key:
+                key: https://rpm.releases.hashicorp.com/gpg
+
+            - name: add yum repo
+              become: true
+              ansible.builtin.yum_repository:
+                baseurl: https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
+                name: hashicorp
+                description: Hashicorp Stable - $basearch
+                enabled: true
+                gpgcheck: true
+                gpgkey: https://rpm.releases.hashicorp.com/gpg
+              when: use_custom_repos is defined
+
+            - name: Installing required packages
+              become: true
+              ansible.builtin.package:
+                name: vagrant
+          when: ansible_distribution == 'Fedora'
+
+    - name: Install docker
+      block:
+        - block:
+            - name: Install docker
+              become: true
+              ansible.builtin.package:
+                name: "{{ item }}"
+              loop:
+                - docker-compose-v2
+                - docker.io
+          when: ansible_distribution == 'Debian'
+
+        # On Fedora we try with Podman for the time being.
+        - block:
+            - name: Install podman-compose
+              become: true
+              ansible.builtin.package:
+                name: "{{ item }}"
+              loop:
+                - podman-compose
+          when: ansible_distribution == 'Fedora'
+
+    - name: IntelliJ IDEA Ultimate
+      tags:
+        - idea
+      block:
+        - name: Install pip
+          ansible.builtin.command:
+            # @todo Should use https://bootstrap.pypa.io/get-pip.py
+            cmd: python3 -m ensurepip
+          when: ansible_distribution == 'Fedora'
+
+        - name: Install jmespath
+          ansible.builtin.pip:
+            name: jmespath
+
+        - name: Install IntelliJ PHPStorm Ultimate
+          ansible.builtin.include_role:
+            name: diademiemi.jetbrains.phpstorm
+          vars:
+            jetbrains_phpstorm_version: 2023.3.2
+            jetbrains_phpstorm_plugins:
+              - 6610
+              - 9674
+              - 7512
+              - 7320
+              - 15184
+              - 7379
+              - 7060
+
+    - name: Install Nextcloud
+      block:
+        - name: Download AppImage
+          ansible.builtin.get_url:
+            url: "https://github.com/nextcloud-releases/desktop/releases/download/v{{nextcloud_client_version}}/Nextcloud-{{nextcloud_client_version}}-x86_64.AppImage"
+            dest: ~/Applications/Nextcloud.AppImage
+            mode: 0700
+          vars:
+            nextcloud_client_version: 3.11.0
+
+        - name: Create autostart entry
+          block:
+            - name: Make sure autostart directory exists
+              ansible.builtin.file:
+                name: ~/.config/autostart
+                state: directory
+
+            - name: Place nextcloud autostart item
+              ansible.builtin.copy:
+                src: files/home/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop
+                dest: ~/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop
+
+    - name: Install Flatpaks
+      community.general.flatpak:
+        method: user
+        name: "{{ item }}"
+      loop:
+        - rest.insomnia.Insomnia
+        - org.mozilla.Thunderbird
+        - com.bitwarden.desktop
+        - io.posidon.Paper
