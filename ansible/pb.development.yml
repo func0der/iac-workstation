@@ -188,6 +188,12 @@
             dest: "~/{{ item }}"
           loop:
             - .bash_paths
+
+        - name: Place bash config files from templates
+          ansible.builtin.template:
+            src: "templates/{{ item }}.j2"
+            dest: "~/{{ item }}"
+          loop:
             - .bash_profile
 
     - name: Virtualbox
