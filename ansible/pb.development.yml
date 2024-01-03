@@ -316,12 +316,13 @@
           ansible.builtin.pip:
             name: jmespath
 
-        - name: Install IntelliJ PHPStorm Ultimate
+        - name: Install IntelliJ IDEA Ultimate
           ansible.builtin.include_role:
-            name: diademiemi.jetbrains.phpstorm
+            name: diademiemi.jetbrains.idea
           vars:
-            jetbrains_phpstorm_version: 2023.3.2
-            jetbrains_phpstorm_plugins:
+            jetbrains_idea_version: 2023.3.2
+            jetbrains_idea_edition: IU
+            jetbrains_idea_plugins:
               - 6610
               - 9674
               - 7512
