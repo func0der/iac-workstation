@@ -7,7 +7,11 @@
 . ~/.bash_paths
 eval "$(starship init bash)"
 
-{# Disable 'packages' part on fedora, because it creates a noticeable hanger on new terminal windows #}
+# Show neofetch only the first time bash is started. This way
+# we can have nice and shiny and a faster working environment
+# Be aware that this counts for a BOOT, not for every session/tty etc.
+test ! -f /tmp/neofetch_shown && NEOFETCH_TMPFILE=$(mktemp /tmp/neofetch_shown.XXX) && mv ${NEOFETCH_TMPFILE} /tmp/neofetch_shown && neofetch
+
 neofetch {% if ansible_distribution == 'Fedora' %}--disable packages{% endif %}
 
 alias dotfiles='/usr/bin/git --git-dir=$HOME/Projects/dotfiles --work-tree=$HOME'
