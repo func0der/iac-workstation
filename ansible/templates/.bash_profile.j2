@@ -12,6 +12,4 @@ eval "$(starship init bash)"
 # Be aware that this counts for a BOOT, not for every session/tty etc.
 test ! -f /tmp/neofetch_shown && NEOFETCH_TMPFILE=$(mktemp /tmp/neofetch_shown.XXX) && mv ${NEOFETCH_TMPFILE} /tmp/neofetch_shown && neofetch
 
-neofetch {% if ansible_distribution == 'Fedora' %}--disable packages{% endif %}
-
 alias dotfiles='/usr/bin/git --git-dir=$HOME/Projects/dotfiles --work-tree=$HOME'
