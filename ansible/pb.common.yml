@@ -30,5 +30,11 @@
         - https://extensions.gnome.org/extension/615/appindicator-support/
         - https://extensions.gnome.org/extension/2236/night-theme-switcher/
 
+    - name: Remove libreoffice
+      become: true
+      ansible.builtin.package:
+        name: libreoffice*
+        state: absent
+
   roles:
     - common
