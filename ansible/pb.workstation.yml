@@ -295,12 +295,40 @@
 
         # On Fedora we try with Podman for the time being.
         - block:
-            - name: Install podman-compose
+            - name: add gpg repo key
+              become: true
+              ansible.builtin.rpm_key:
+                key: https://download.docker.com/linux/fedora/gpg
+
+            - name: add yum repo
+              become: true
+              ansible.builtin.yum_repository:
+                baseurl: https://download.docker.com/linux/fedora/$releasever/$basearch/stable
+                name: docker-ce
+                description: Docker CE Stable - $basearch
+                enabled: true
+                gpgcheck: true
+                gpgkey: https://download.docker.com/linux/fedora/gpg
+
+            - name: dnf makecache
+              become: true
+              ansible.builtin.command: dnf makecache
+
+            - name: Install docker-ce
+              become: true
+              ansible.builtin.dnf:
+                name: docker-ce
+                allowerasing: true
+
+            - name: Installing required packages
               become: true
               ansible.builtin.package:
                 name: "{{ item }}"
               loop:
-                - podman-compose
+                - docker-ce-cli
+                - containerd.io
+                - docker-buildx-plugin
+                - docker-compose-plugin
           when: ansible_distribution == 'Fedora'
 
     - name: IntelliJ IDEA Ultimate
