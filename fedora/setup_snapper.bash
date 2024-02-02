@@ -95,7 +95,7 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 # Setup grub-btrfs
 if [[ ! $(command -v grub-btrfsd) ]]; then
     # We need make (no cleanup, stays on system)
-    sudo dnf install make
+    sudo dnf install make inotify-tools
 
     # Checkout
     GRUB_BTRFS_GIT_DIR=/tmp/grub-btrfs-git
