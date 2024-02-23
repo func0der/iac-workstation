@@ -9,6 +9,7 @@
         name: "{{ item }}"
       loop:
         - com.teamspeak.TeamSpeak
+        - org.freedesktop.Piper
 
     - name: Gather the package facts
       ansible.builtin.package_facts:
@@ -77,3 +78,4 @@
       loop:
         - lutris
         - steam
+        - libratbag-ratbagd
