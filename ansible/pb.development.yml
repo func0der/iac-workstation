@@ -4,6 +4,8 @@
   hosts: all
   tasks:
     - name: Configure ssh config
+      tags:
+        - ssh
       block:
         - name: Ensure required folder exists
           file:
@@ -34,6 +36,8 @@
             marker: "#{mark} ANSIBLE MANAGED BLOCK SSH"
 
     - name: Install and configure git
+      tags:
+        - git
       block:
         - name: Place config files in home directory
           ansible.builtin.copy:
@@ -95,6 +99,8 @@
         - Projects/work
 
     - name: Install nerdfonts
+      tags:
+        - fonts
       block:
         - name: Make .fonts directory
           ansible.builtin.file:
@@ -112,6 +118,9 @@
             dest: ~/.local/share/fonts/NerdFonts
 
     - name: Install and configure starship
+      tags:
+        - starship
+        - terminal
       block:
         - name: Check for Starship command
           ansible.builtin.command:
@@ -152,6 +161,8 @@
             dest: "~/.config/starship.toml"
 
     - name: Configure terminal
+      tags:
+        - terminal
       block:
         - name: Find default profiles name
           ansible.builtin.command:
@@ -176,6 +187,8 @@
             gnome_terminal_default_profile_gsettings_path: "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:{{gnome_terminal_default_profile.stdout }}"
 
     - name: Configure shell
+      tags:
+        - terminal
       block:
         - name: Install neofetch
           become: true
@@ -197,6 +210,8 @@
             - .bash_profile
 
     - name: Virtualbox
+      tags:
+        - vms
       block:
         - block:
             - name: Install virtualbox
@@ -235,6 +250,8 @@
           when: ansible_distribution == 'Fedora'
 
     - name: Install vagrant
+      tags:
+        - vms
       block:
         - block:
           - name: add gpg repo key
@@ -282,6 +299,9 @@
           when: ansible_distribution == 'Fedora'
 
     - name: Install docker
+      tags:
+        - vms
+        - containers
       block:
         - block:
             - name: Install docker
@@ -332,6 +352,9 @@
           when: ansible_distribution == 'Fedora'
 
     - name: Install Insomnia (Flatpak)
+      tags:
+        - web
+        - insomnia
       community.general.flatpak:
         method: user
         name: rest.insomnia.Insomnia

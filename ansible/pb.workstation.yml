@@ -4,6 +4,8 @@
   hosts: all
   tasks:
     - name: Configure ssh config
+      tags:
+        - ssh
       block:
         - name: Ensure required folder exists
           file:
@@ -34,6 +36,8 @@
             marker: "#{mark} ANSIBLE MANAGED BLOCK SSH"
 
     - name: Install and configure git
+      tags:
+        - git
       block:
         - name: Place config files in home directory
           ansible.builtin.copy:
@@ -95,6 +99,8 @@
         - Projects/work
 
     - name: Install nerdfonts
+      tags:
+        - fonts
       block:
         - name: Make .fonts directory
           ansible.builtin.file:
@@ -112,6 +118,9 @@
             dest: ~/.local/share/fonts/NerdFonts
 
     - name: Install and configure starship
+      tags:
+        - starship
+        - terminal
       block:
         - name: Check for Starship command
           ansible.builtin.command:
@@ -152,6 +161,8 @@
             dest: "~/.config/starship.toml"
 
     - name: Configure terminal
+      tags:
+        - terminal
       block:
         - name: Find default profiles name
           ansible.builtin.command:
@@ -176,6 +187,8 @@
             gnome_terminal_default_profile_gsettings_path: "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:{{gnome_terminal_default_profile.stdout }}"
 
     - name: Configure shell
+      tags:
+        - terminal
       block:
         - name: Install neofetch
           become: true
@@ -196,7 +209,10 @@
           loop:
             - .bash_profile
 
+
     - name: Virtualbox
+      tags:
+        - vms
       block:
         - block:
             - name: Install virtualbox
@@ -235,6 +251,8 @@
           when: ansible_distribution == 'Fedora'
 
     - name: Install vagrant
+      tags:
+        - vms
       block:
         - block:
           - name: add gpg repo key
@@ -282,6 +300,9 @@
           when: ansible_distribution == 'Fedora'
 
     - name: Install docker
+      tags:
+        - vms
+        - containers
       block:
         - block:
             - name: Install docker
@@ -331,7 +352,7 @@
                 - docker-compose-plugin
           when: ansible_distribution == 'Fedora'
 
-    - name: IntelliJ IDEA Ultimate
+    - name: IntelliJ PHPStorm
       tags:
         - idea
       block:
@@ -360,26 +381,44 @@
               - 7060
 
     - name: Install Nextcloud
+      tags:
+        - nextcloud
+      vars:
+        nextcloud_client_version: 3.12.1
       block:
-        - name: Download AppImage
-          ansible.builtin.get_url:
-            url: "https://github.com/nextcloud-releases/desktop/releases/download/v{{nextcloud_client_version}}/Nextcloud-{{nextcloud_client_version}}-x86_64.AppImage"
-            dest: ~/Applications/Nextcloud.AppImage
-            mode: 0700
-          vars:
-            nextcloud_client_version: 3.11.0
-
-        - name: Create autostart entry
+        - name: Nextcloud | Version check
           block:
-            - name: Make sure autostart directory exists
-              ansible.builtin.file:
-                name: ~/.config/autostart
-                state: directory
+            - name: Nextcloud | Version check | Get current version
+              ansible.builtin.command:
+                cmd: ~/Applications/Nextcloud.AppImage --version
+              register: nextcloud_current_version_check
 
-            - name: Place nextcloud autostart item
-              ansible.builtin.copy:
-                src: files/home/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop
-                dest: ~/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop
+            - name: Nextcloud | Version check | Extract version
+              ansible.builtin.set_fact:
+                nextcloud_current_version: "{{ nextcloud_current_version_check.stdout | regex_search(version_regex,'\\1') | first }}"
+              vars:
+                version_regex: 'Nextcloud version ([\d\.]+) \(build'
+
+        - name: Nextcloud | Install
+          when: nextcloud_client_version != nextcloud_current_version
+          block:
+            - name: Nextcloud | Install | Download AppImage
+              ansible.builtin.get_url:
+                url: "https://github.com/nextcloud-releases/desktop/releases/download/v{{nextcloud_client_version}}/Nextcloud-{{nextcloud_client_version}}-x86_64.AppImage"
+                dest: ~/Applications/Nextcloud.AppImage
+                mode: 0700
+
+            - name: Nextcloud | Install | Create autostart entry
+              block:
+                - name: Make sure autostart directory exists
+                  ansible.builtin.file:
+                    name: ~/.config/autostart
+                    state: directory
+
+                - name: Place nextcloud autostart item
+                  ansible.builtin.copy:
+                    src: files/home/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop
+                    dest: ~/.config/autostart/Nextcloud.desktop
 
     - name: Install Flatpaks
       community.general.flatpak:
