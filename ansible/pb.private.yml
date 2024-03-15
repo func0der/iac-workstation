@@ -10,7 +10,7 @@
             dest: ~/Applications/Nextcloud.AppImage
             mode: 0700
           vars:
-            nextcloud_client_version: 3.11.0
+            nextcloud_client_version: 3.12.1
 
         - name: Create autostart entry
           block:
