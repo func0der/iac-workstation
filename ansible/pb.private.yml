@@ -43,6 +43,8 @@
                     dest: ~/.config/autostart/Nextcloud.desktop
 
     - name: Install flatpak software
+      tags:
+        - flatpaks
       community.general.flatpak:
         method: user
         name: "{{ item }}"
@@ -57,6 +59,8 @@
 
     # @see https://protonvpn.com/support/official-linux-vpn-fedora/
     - name: Install protonvpn
+      tags:
+        - protonvpn
       block:
         - block:
             - name: Temporary location for installer file
