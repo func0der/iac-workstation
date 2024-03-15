@@ -2,27 +2,45 @@
 - name: Setup Private system
   hosts: all
   tasks:
-    - name: Install Nextcloud
+    - name: Nextcloud
+      tags:
+        - nextcloud
+      vars:
+        nextcloud_client_version: 3.12.1
       block:
-        - name: Download AppImage
-          ansible.builtin.get_url:
-            url: "https://github.com/nextcloud-releases/desktop/releases/download/v{{nextcloud_client_version}}/Nextcloud-{{nextcloud_client_version}}-x86_64.AppImage"
-            dest: ~/Applications/Nextcloud.AppImage
-            mode: 0700
-          vars:
-            nextcloud_client_version: 3.12.1
-
-        - name: Create autostart entry
+        - name: Nextcloud | Version check
           block:
-            - name: Make sure autostart directory exists
-              ansible.builtin.file:
-                name: ~/.config/autostart
-                state: directory
+            - name: Nextcloud | Version check | Get current version
+              ansible.builtin.command:
+                cmd: ~/Applications/Nextcloud.AppImage --version
+              register: nextcloud_current_version_check
 
-            - name: Place nextcloud autostart item
-              ansible.builtin.copy:
-                src: files/home/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop
-                dest: ~/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop
+            - name: Nextcloud | Version check | Extract version
+              ansible.builtin.set_fact:
+                nextcloud_current_version: "{{ nextcloud_current_version_check.stdout | regex_search(version_regex,'\\1') | first }}"
+              vars:
+                version_regex: 'Nextcloud version ([\d\.]+) \(build'
+
+        - name: Nextcloud | Install
+          when: nextcloud_client_version != nextcloud_current_version
+          block:
+            - name: Nextcloud | Install | Download AppImage
+              ansible.builtin.get_url:
+                url: "https://github.com/nextcloud-releases/desktop/releases/download/v{{nextcloud_client_version}}/Nextcloud-{{nextcloud_client_version}}-x86_64.AppImage"
+                dest: ~/Applications/Nextcloud.AppImage
+                mode: 0700
+
+            - name: Nextcloud | Install | Create autostart entry
+              block:
+                - name: Make sure autostart directory exists
+                  ansible.builtin.file:
+                    name: ~/.config/autostart
+                    state: directory
+
+                - name: Place nextcloud autostart item
+                  ansible.builtin.copy:
+                    src: files/home/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop
+                    dest: ~/.config/autostart/Nextcloud.desktop
 
     - name: Install flatpak software
       community.general.flatpak:
