@@ -393,6 +393,7 @@
                 cmd: ~/Applications/Nextcloud.AppImage --version
               register: nextcloud_current_version_check
               check_mode: false
+              changed_when: false
 
             - name: Nextcloud | Version check | Extract version
               ansible.builtin.set_fact:
