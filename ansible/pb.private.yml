@@ -31,17 +31,17 @@
                 dest: ~/Applications/Nextcloud.AppImage
                 mode: 0700
 
-            - name: Nextcloud | Install | Create autostart entry
-              block:
-                - name: Make sure autostart directory exists
-                  ansible.builtin.file:
-                    name: ~/.config/autostart
-                    state: directory
+        - name: Nextcloud | Install | Create autostart entry
+          block:
+            - name: Make sure autostart directory exists
+              ansible.builtin.file:
+                name: ~/.config/autostart
+                state: directory
 
-                - name: Place nextcloud autostart item
-                  ansible.builtin.copy:
-                    src: files/home/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop
-                    dest: ~/.config/autostart/Nextcloud.desktop
+            - name: Place nextcloud autostart item
+              ansible.builtin.template:
+                src: templates/home/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop.j2
+                dest: ~/.config/autostart/Nextcloud.desktop
 
     - name: Install flatpak software
       tags:
