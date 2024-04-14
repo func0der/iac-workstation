@@ -5,3 +5,5 @@
 
 # Used in .gitconfig as global author name for git commits
 gitconfig_user_name:
+
+nextcloud_client_version: 3.12.3

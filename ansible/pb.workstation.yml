@@ -383,8 +383,6 @@
     - name: Install Nextcloud
       tags:
         - nextcloud
-      vars:
-        nextcloud_client_version: 3.12.1
       block:
         - name: Nextcloud | Version check
           block:
