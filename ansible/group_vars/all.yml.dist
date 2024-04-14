@@ -1,0 +1,7 @@
+# You might not need every configuration in this file for every
+# playbook. If you get any errors during playbook execution, check back here
+# if the variable is set correctly.
+---
+
+# Used in .gitconfig as global author name for git commits
+gitconfig_user_name:

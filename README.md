@@ -51,6 +51,12 @@ the playbook could fail unexpectedly (see [Assumptions](#assumptions)).
 ansible-galaxy install -r ansible/requirements.yml
 ```
 
+### Adjust config
+
+You find a config template in `ansible/group_vars/all.yml.dist`.
+
+Copy it to `ansible/group_vars/all.yml` and configure to your liking.
+
 ### Run `common` playbook
 
 There is currently no proper structure and there might be some implicit
