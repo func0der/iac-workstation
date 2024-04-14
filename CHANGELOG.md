@@ -9,7 +9,12 @@ and this project **TRIES** to adhere to [Semantic Versioning](https://semver.org
 
 ### Changed
 
-  * Global config needs to be created before using this repository ([Details](`./README.md#adjust_config`)
+  * Global config needs to be created before using this repository ([Details](./README.md#adjust-config))
   * Make the nextcloud client version global instead of per playbook
   * Add a CHANGELOG.md
 
+## 1.0.1
+
+### Changed
+
+  * Fixed broken link in CHANGELOG.md
