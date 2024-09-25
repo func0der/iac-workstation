@@ -370,7 +370,7 @@
           ansible.builtin.include_role:
             name: diademiemi.jetbrains.phpstorm
           vars:
-            jetbrains_phpstorm_version: 2024.2.0.1
+            jetbrains_phpstorm_version: 2024.2.2
             jetbrains_phpstorm_plugins:
               - 6610
               - 9674
