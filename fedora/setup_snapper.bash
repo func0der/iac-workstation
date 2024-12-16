@@ -64,6 +64,10 @@ sudo dnf install snapper
 # Configure snapper
 sudo snapper -c root create-config /
 
+# Enable cleanup jobs
+sudo systemctl enable snapper-cleanup.timer
+sudo systemctl start snapper-cleanup.timer
+
 grep '/.snapshots' /etc/fstab > /dev/null || printf "%-41s %-24s %-5s %-s %-s\n" \
     "UUID=${ROOT_UUID}" \
     "/.snapshots" \
