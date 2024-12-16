@@ -59,7 +59,7 @@ done
 sudo systemctl daemon-reload
 
 # Install snapper
-sudo dnf install snapper python3-dnf-plugin-snapper
+sudo dnf install snapper
 
 # Configure snapper
 sudo snapper -c root create-config /
@@ -84,6 +84,28 @@ if [[ ! $(grep '.snapshots' /etc/updatedb.conf) ]]; then
     echo 'to "/etc/updatedb.conf. I will wait... Press any key to continue."'
 
     read
+fi
+
+# Configure snapper during updates
+if [ -x $(command -v dnf5 >/dev/null 2>&1) ]; then
+
+  sudo dnf install libdnf5-plugin-actions
+
+  # @see https://github.com/rpm-software-management/dnf5/issues/702
+  sudo mkdir -p /etc/dnf/libdnf5-plugins/actions.d
+
+  cat <<- "ACTION_DEFINITION" | sudo tee /etc/dnf/libdnf5-plugins/actions.d/snapper.actions
+# Get snapshot description
+pre_transaction::::/usr/bin/sh -c echo\ "tmp.cmd=$(ps\ -o\ command\ --no-headers\ -p\ '${pid}')"
+# Creates pre snapshot before the transaction and stores the snapshot number in the "tmp.snapper_pre_number"  variable.
+pre_transaction::::/usr/bin/sh -c echo\ "tmp.snapper_pre_number=$(snapper\ create\ -t\ pre\ -p\ -d\ '${tmp.cmd}')"
+
+# If the variable "tmp.snapper_pre_number" exists, it creates post snapshot after the transaction and removes the variable "tmp.snapper_pre_number".
+post_transaction::::/usr/bin/sh -c [\ -n\ "${tmp.snapper_pre_number}"\ ]\ &&\ snapper\ create\ -t\ post\ --pre-number\ "${tmp.snapper_pre_number}"\ -d\ "${tmp.cmd}"\ ;\ echo\ tmp.snapper_pre_number\ ;\ echo\ tmp.cmd
+ACTION_DEFINITION
+
+else
+  sudo dnf install python3-dnf-plugin-snapper
 fi
 
 
