@@ -137,4 +137,4 @@
             path: "{{ protonvpn_temp_installer.path }}"
             state: absent
           when: protonvpn_temp_installer.changed
-      when: "'protonvpn' not in ansible_facts.packages"
+      when: "'proton-vpn-gnome-desktop' not in ansible_facts.packages"
