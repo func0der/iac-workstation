@@ -8,14 +8,26 @@
       block:
         - name: Nextcloud | Version check
           block:
+            - name: Nextcloud | Version check | Default
+              ansible.builtin.set_fact:
+                nextcloud_current_version: 0.0.0
+
+            - name: Check for current installation of Nextcloud
+              stat:
+                path: ~/Applications/Nextcloud.AppImage
+              register: nextcloud_installation
+
             - name: Nextcloud | Version check | Get current version
+              when: nextcloud_installation.stat.exists == True
               ansible.builtin.command:
                 cmd: ~/Applications/Nextcloud.AppImage --version
               register: nextcloud_current_version_check
               check_mode: false
               changed_when: false
+              ignore_errors: true
 
             - name: Nextcloud | Version check | Extract version
+              when: nextcloud_current_version_check.skipped is defined and nextcloud_current_version_check.skipped == False
               ansible.builtin.set_fact:
                 nextcloud_current_version: "{{ nextcloud_current_version_check.stdout | regex_search(version_regex,'\\1') | first }}"
               vars:
