@@ -124,6 +124,12 @@
                 name: proton-vpn-gnome-desktop
                 update_cache: true
                 disable_gpg_check: true
+
+            - name: Install libappindicator-gtk3
+              become: true
+              ansible.builtin.dnf5:
+                name: libappindicator-gtk3
+                update_cache: true
           when: ansible_distribution == 'Fedora'
 
         - name: Delete repo installer
