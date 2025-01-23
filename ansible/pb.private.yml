@@ -66,6 +66,8 @@
         # @todo - com.naps2.Naps2 (https://github.com/cyanfish/naps2)
 
     - name: Gather the package facts
+      tags:
+        - protonvpn
       ansible.builtin.package_facts:
         manager: auto
 
