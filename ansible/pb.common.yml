@@ -32,10 +32,33 @@
         - https://extensions.gnome.org/extension/2236/night-theme-switcher/
 
     - name: Remove libreoffice
-      become: true
-      ansible.builtin.package:
-        name: libreoffice*
-        state: absent
+      block:
+        - name: Remove libreoffice
+          become: true
+          ansible.builtin.apt:
+            name: libreoffice*
+            state: absent
+            autoremove: true
+            purge: true
+          when: ansible_pkg_mgr == 'apt'
+
+        - name: Remove libreoffice
+          become: true
+          ansible.builtin.dnf:
+            name: libreoffice*
+            state: absent
+            autoremove: true
+            allowerasing: true
+          when: ansible_pkg_mgr == 'dnf'
+
+        - name: Remove libreoffice
+          become: true
+          ansible.builtin.dnf5:
+            name: libreoffice*
+            state: absent
+            autoremove: true
+            allowerasing: true
+          when: ansible_pkg_mgr == 'dnf5'
 
   roles:
     - common
