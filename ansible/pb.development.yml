@@ -336,7 +336,7 @@
 
             - name: Install docker-ce
               become: true
-              ansible.builtin.dnf:
+              ansible.builtin.dnf5:
                 name: docker-ce
                 allowerasing: true
 

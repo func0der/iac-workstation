@@ -102,13 +102,13 @@
 
             - name: Run repo installer
               become: true
-              ansible.builtin.dnf:
+              ansible.builtin.dnf5:
                 name: "{{ protonvpn_temp_installer.path }}"
                 disable_gpg_check: true
 
             - name: Install protonvpn
               become: true
-              ansible.builtin.dnf:
+              ansible.builtin.dnf5:
                 name: protonvpn
                 update_cache: true
                 disable_gpg_check: true

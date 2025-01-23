@@ -1,0 +1,29 @@
+---
+
+- name: "{{ package.name }} | Download repository key"
+  become: true
+  ansible.builtin.rpm_key:
+    key: "{{ package.repo_key }}"
+  when: package.repo_key is defined
+
+- name: "{{ package.name }} | Add yum repo"
+  become: true
+  ansible.builtin.yum_repository:
+    baseurl: "{{ package.repo }}"
+    name: "{{ package.name }}"
+    description: "{{ package.name }}"
+    enabled: true
+    gpgcheck: true
+    gpgkey: "{{ package.repo_key }}"
+  when: package.repo_key is defined and package.repo is defined
+  register: repository_added
+
+- name: dnf makecache
+  become: true
+  ansible.builtin.command: dnf5 makecache
+  when: repository_added.changed
+
+- name: "{{ package.name }} | Install"
+  become: true
+  ansible.builtin.package:
+    name: "{{ package.name }}"

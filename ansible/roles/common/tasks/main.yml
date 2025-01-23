@@ -27,6 +27,14 @@
             state: latest
       when: ansible_pkg_mgr == 'dnf'
 
+    - block:
+        - name: Upgrade packages
+          become: true
+          ansible.builtin.dnf5:
+            name: "*"
+            state: latest
+      when: ansible_pkg_mgr == 'dnf5'
+
 - name: Install packages
   loop: "{{ common_packages }}"
   ansible.builtin.include_tasks: "install_package/{{ ansible_pkg_mgr }}.yml"
