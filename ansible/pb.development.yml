@@ -234,10 +234,10 @@
       tags:
         - terminal
       block:
-        - name: Install neofetch
+        - name: Install fastfetch
           become: true
           ansible.builtin.package:
-            name: neofetch
+            name: fastfetch
 
         - name: Place bash config files
           ansible.builtin.copy:
