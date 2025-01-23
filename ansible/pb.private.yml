@@ -121,7 +121,7 @@
             - name: Install protonvpn
               become: true
               ansible.builtin.dnf5:
-                name: protonvpn
+                name: proton-vpn-gnome-desktop
                 update_cache: true
                 disable_gpg_check: true
           when: ansible_distribution == 'Fedora'
