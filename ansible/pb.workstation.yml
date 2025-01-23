@@ -164,27 +164,71 @@
       tags:
         - terminal
       block:
-        - name: Find default profiles name
+        - name: Check for Gnome Terminal
           ansible.builtin.command:
-            cmd: gsettings get org.gnome.Terminal.ProfilesList default
-          register: gnome_terminal_default_profile
+            cmd: gsettings list-recursively org.gnome.Terminal
+          register: gnome_terminal_check
+          ignore_errors: true
 
-        - name: Configure terminal's default profile
+        - name: Check for Ptyxis Terminal
+          ansible.builtin.command:
+            cmd: gsettings list-recursively org.gnome.Ptyxis
+          register: ptyxis_terminal_check
+          ignore_errors: true
+
+        - name: Gnome Terminal
           block:
-            # Maybe add a loop here with a check, so we do not run this every time.
-            - name: Set nerdfont
+            - name: Gnome Terminal | Find default profiles name
               ansible.builtin.command:
-                cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}}/ font 'FiraMono Nerd Font Mono 12'"
+                cmd: gsettings get org.gnome.Terminal.ProfilesList default
+              register: gnome_terminal_default_profile
 
-            - name: Do not use system font
-              ansible.builtin.command:
-                cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}}/ use-system-font false"
+            - name: Gnome Terminal | Configure terminal's default profile
+              block:
+                # Maybe add a loop here with a check, so we do not run this every time.
+                - name: Gnome Terminal | Set nerdfont
+                  ansible.builtin.command:
+                    cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}} font 'FiraMono Nerd Font Mono 12'"
 
-            - name: Set shell to be login shell
+                - name: Gnome Terminal | Do not use system font
+                  ansible.builtin.command:
+                    cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}} use-system-font false"
+
+                - name: Gnome Terminal | Set shell to be login shell
+                  ansible.builtin.command:
+                    cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}} login-shell true"
+              vars:
+                gnome_terminal_default_profile_gsettings_path: "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:{{gnome_terminal_default_profile.stdout }}/"
+          when: gnome_terminal_check.rc == 0
+
+        - name: Ptyxis Terminal
+          block:
+            - name: Ptyxis Terminal | Find default profiles name
               ansible.builtin.command:
-                cmd: "gsettings set {{gnome_terminal_default_profile_gsettings_path}}/ login-shell true"
-          vars:
-            gnome_terminal_default_profile_gsettings_path: "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:{{gnome_terminal_default_profile.stdout }}"
+                cmd: gsettings get org.gnome.Ptyxis default-profile-uuid
+              register: terminal_default_profile
+
+              # org/gnome/Ptyxis/Profiles/ed7a44ed5ecf1a27a6b59a7f67919169
+            - ansible.builtin.debug:
+                var: terminal_default_profile.stdout
+
+            - name: Ptyxis Terminal | Configure terminal's default profile
+              block:
+                # Maybe add a loop here with a check, so we do not run this every time.
+                - name: Ptyxis Terminal | Set nerdfont
+                  ansible.builtin.command:
+                    cmd: "gsettings set org.gnome.Ptyxis font-name 'FiraMono Nerd Font Mono 13'"
+
+                - name: Ptyxis Terminal | Do not use system font
+                  ansible.builtin.command:
+                    cmd: "gsettings set org.gnome.Ptyxis use-system-font false"
+
+                - name: Ptyxis Terminal | Set shell to be login shell
+                  ansible.builtin.command:
+                    cmd: "gsettings set {{terminal_default_profile_gsettings_path}}Profiles/{{terminal_default_profile.stdout }}/ login-shell true"
+              vars:
+                terminal_default_profile_gsettings_path: "org.gnome.Ptyxis.Profile:/org/gnome/Ptyxis/"
+          when: ptyxis_terminal_check.rc == 0
 
     - name: Configure shell
       tags:
