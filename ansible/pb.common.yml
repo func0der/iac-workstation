@@ -23,6 +23,8 @@
           value: 30
         - key: org.gnome.desktop.peripherals.mouse accel-profile
           value: flat
+        - key: org.gnome.desktop.peripherals.touchpad natural-scroll
+          value: 'false'
 
     - name: Install gnome extensions
       ansible.builtin.debug:
