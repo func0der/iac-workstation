@@ -140,3 +140,37 @@
             state: absent
           when: protonvpn_temp_installer.changed
       when: "'proton-vpn-gnome-desktop' not in ansible_facts.packages"
+
+    # @see https://bbs.archlinux.org/viewtopic.php?id=291569
+    # @see https://gist.github.com/Cr4shOv3rrid3/2fb9f7eb792148554a6e01ea53899b7d
+    - name: Keyboard not coming back from sleep fix
+      tags:
+        - never
+        - fixes
+        - keyboard-fix
+      block:
+        - name: check if fix is present
+          lineinfile:
+            backup: true
+            path: /etc/default/grub
+            regexp: '^GRUB_CMDLINE_LINUX=".*i8042.noaux'
+            state: absent
+          check_mode: true
+          register: grub_cmdline_check
+          changed_when: false
+
+        - name: insert fix if missing
+          become: true
+          lineinfile:
+            backrefs: true
+            path: /etc/default/grub
+            regexp: "^(GRUB_CMDLINE_LINUX=\".*)\"$"
+            line: '\1 i8042.noaux"'
+          when: grub_cmdline_check.found == 0
+          notify: Update Grub
+
+  handlers:
+    - name: Update Grub
+      become: true
+      ansible.builtin.command:
+        cmd: grub2-mkconfig -o /boot/grub2/grub.cfg
