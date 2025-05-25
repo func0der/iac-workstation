@@ -421,7 +421,7 @@
           ansible.builtin.include_role:
             name: diademiemi.jetbrains.idea
           vars:
-            jetbrains_idea_version: 2024.3.3
+            jetbrains_idea_version: 2025.1.1.1
             jetbrains_idea_edition: IU
             jetbrains_idea_plugins:
               - 6610
