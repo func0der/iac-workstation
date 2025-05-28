@@ -234,11 +234,6 @@
       tags:
         - terminal
       block:
-        - name: Install fastfetch
-          become: true
-          ansible.builtin.package:
-            name: fastfetch
-
         - name: Place bash config files
           ansible.builtin.copy:
             src: "files/home/{{ item }}"
